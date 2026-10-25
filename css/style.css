@@ -203,3 +203,29 @@ input[type=number] { width: 5rem; }
 
 .init-row.drop-before { box-shadow: 0 -4px 0 0 var(--gold); }
 .init-list.drop-end { box-shadow: 0 4px 0 0 var(--gold); }
+
+/* Bestiary cards: a border color for each creature type */
+.card.creature { --tc: var(--line); border: 2px solid var(--tc); }
+.card.creature:hover { border-color: var(--tc); filter: brightness(1.04); }
+.card.creature[data-type=aberration] { --tc: #1f9bb5; }
+.card.creature[data-type=beast] { --tc: #8a5a2b; }
+.card.creature[data-type=celestial] { --tc: #d4a017; }
+.card.creature[data-type=construct] { --tc: #6b7f8c; }
+.card.creature[data-type=dragon] { --tc: #c0392b; }
+.card.creature[data-type=elemental] { --tc: #e67e22; }
+.card.creature[data-type=fey] { --tc: #d6489a; }
+.card.creature[data-type=fiend] { --tc: #7d3c98; }
+.card.creature[data-type=giant] { --tc: #a8845a; }
+.card.creature[data-type=humanoid] { --tc: #3b6fb6; }
+.card.creature[data-type=monstrosity] { --tc: #8e8e2a; }
+.card.creature[data-type=ooze] { --tc: #46b04a; }
+.card.creature[data-type=plant] { --tc: #1e6b3a; }
+.card.creature[data-type=undead] { --tc: #3b3b4f; }
+:root[data-theme='dark'] .card.creature[data-type=undead] { --tc: #a9a9c4; }
+:root[data-theme='dark'] .card.creature[data-type=plant] { --tc: #3fa06a; }
+:root[data-theme='dark'] .card.creature[data-type=beast] { --tc: #b9824a; }
+.player-stats { display: flex; gap: .5rem; }
+.player-stats label { display: flex; flex-direction: column; font-size: .75rem; color: var(--muted); gap: .1rem; }
+.row-card.player .player-stats input { width: 4.6rem; }
+.row-card.player { grid-template-columns: 1fr auto auto auto; }
+@media (max-width: 720px) { .row-card.player { grid-template-columns: 1fr auto; } .row-card.player .player-stats { grid-column: 1 / -1; } }
