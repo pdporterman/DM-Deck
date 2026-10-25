@@ -2,6 +2,8 @@ import * as S from '../store.js';
 import { el, clear, modal, confirmBox, clickPrimary } from '../ui.js';
 import * as nav from '../nav.js';
 
+const num = v => { const n = parseInt(v, 10); return Number.isNaN(n) || n < 1 ? undefined : n; };
+
 export function mount(root) {
   const camp = S.campaign();
   if (!camp) { nav.go('bestiary'); return; }
@@ -17,14 +19,16 @@ export function mount(root) {
   function addPlayer() {
     const name = el('input', { type: 'text', placeholder: 'Character name', maxLength: 40 });
     const lvl = levelSelect(1, () => {});
+    const ac = el('input', { type: 'number', min: 1, max: 40, inputMode: 'numeric', placeholder: 'optional' });
+    const hp = el('input', { type: 'number', min: 1, max: 999, inputMode: 'numeric', placeholder: 'optional' });
     const go = () => {
       const n = name.value.trim();
       if (!n) { name.focus(); return false; }
-      camp.players.push({ id: S.uid(), name: n, level: +lvl.value });
+      camp.players.push({ id: S.uid(), name: n, level: +lvl.value, ac: num(ac.value), maxHp: num(hp.value) });
       S.save(); draw();
     };
     name.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); clickPrimary(); } });
-    modal({ title: 'Add a character', body: el('div', { class: 'form' }, el('label', null, 'Name', name), el('label', null, 'Level', lvl)), actions: [{ label: 'Cancel' }, { label: 'Add', kind: 'primary', onClick: go }] });
+    modal({ title: 'Add a character', body: el('div', { class: 'form' }, el('label', null, 'Name', name), el('label', null, 'Level', lvl), el('div', { class: 'row' }, el('label', null, 'Armor Class', ac), el('label', null, 'Max HP', hp))), actions: [{ label: 'Cancel' }, { label: 'Add', kind: 'primary', onClick: go }] });
   }
 
   function draw() {
@@ -40,7 +44,13 @@ export function mount(root) {
     wrap.append(el('div', { class: 'rows' }, camp.players.map(p => {
       const name = el('input', { type: 'text', value: p.name, maxLength: 40, 'aria-label': 'Character name' });
       name.addEventListener('change', () => { p.name = name.value.trim() || p.name; name.value = p.name; S.save(); });
+      const stat = (label, key, max) => {
+        const i = el('input', { type: 'number', min: 1, max, inputMode: 'numeric', placeholder: '—', value: p[key] ?? '', 'aria-label': label + ' for ' + p.name });
+        i.addEventListener('change', () => { p[key] = num(i.value); i.value = p[key] ?? ''; S.save(); });
+        return el('label', null, label, i);
+      };
       return el('article', { class: 'row-card player' }, name, levelSelect(p.level, v => { p.level = v; S.save(); draw(); }),
+        el('div', { class: 'player-stats' }, stat('AC', 'ac', 40), stat('Max HP', 'maxHp', 999)),
         el('button', { class: 'btn small danger', text: 'Remove', 'aria-label': 'Remove ' + p.name, on: { click: async () => { if (await confirmBox('Remove ' + p.name + ' from ' + camp.name + '?', 'Remove')) { camp.players = camp.players.filter(x => x !== p); S.save(); draw(); } } } }));
     })));
   }

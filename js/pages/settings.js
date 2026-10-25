@@ -3,6 +3,7 @@ import * as D from '../data.js';
 import { el, toast, confirmBox } from '../ui.js';
 import * as nav from '../nav.js';
 import { applySettings } from '../theme.js';
+import { buildBestiary, saveStored, clearStored } from '../updater.js';
 
 export function mount(root) {
   const st = S.get(), set = st.settings;
@@ -29,9 +30,41 @@ export function mount(root) {
       el('div', { class: 'toolbar wrap' },
         el('button', { class: 'btn', text: 'Export backup', on: { click: exportData } }),
         el('label', { class: 'btn', text: 'Import backup' }, el('input', { type: 'file', accept: 'application/json', hidden: true, on: { change: importData } })))),
-    el('section', { class: 'panel' }, el('h3', { text: 'Bestiary' }), el('p', { class: 'muted small', id: 'bst-info', text: 'Loading…' })));
+    el('section', { class: 'panel' }, el('h3', { text: 'Bestiary' }),
+      el('p', { class: 'muted small', id: 'bst-info', text: 'Loading…' }),
+      el('div', { class: 'toolbar wrap' },
+        el('button', { class: 'btn', id: 'bst-update', text: 'Update monsters from 5etools', on: { click: updateBestiary } }),
+        el('button', { class: 'btn', id: 'bst-reset', text: 'Use built-in list', hidden: true, on: { click: resetBestiary } })),
+      el('p', { class: 'muted small', id: 'bst-status', role: 'status', text: '' })));
 
-  D.loadBestiary().then(() => { document.getElementById('bst-info').textContent = D.meta.count.toLocaleString() + ' creatures from 5etools (data built ' + D.meta.built + '). Duplicates use the newest book.'; }).catch(() => { document.getElementById('bst-info').textContent = 'Not loaded yet.'; });
+  const info = () => {
+    const n = D.meta.count.toLocaleString();
+    document.getElementById('bst-info').textContent = n + ' creatures from 5etools (' + (D.meta.updated ? 'updated on this device ' : 'built ') + D.meta.built + '). Duplicates use the newest book.';
+    document.getElementById('bst-reset').hidden = !D.meta.updated;
+  };
+  D.loadBestiary().then(info).catch(() => { document.getElementById('bst-info').textContent = 'Not loaded yet.'; });
+
+  async function updateBestiary() {
+    const btn = document.getElementById('bst-update'), status = document.getElementById('bst-status');
+    const before = D.meta.count;
+    btn.disabled = true;
+    try {
+      const j = await buildBestiary((done, total, label) => { status.textContent = label + (total > 1 ? ' ' + done + ' / ' + total : ''); });
+      if (!j.monsters.length) throw new Error('empty');
+      await saveStored(j);
+      D.useData(j);
+      info();
+      const diff = j.monsters.length - before;
+      status.textContent = 'Done: ' + j.monsters.length.toLocaleString() + ' creatures' + (diff ? ' (' + (diff > 0 ? '+' : '') + diff + ' since the last list)' : ', no change in count') + '. Saved on this device.';
+    } catch (err) {
+      status.textContent = 'Could not update. Check your connection and try again (' + (err.message || 'error') + ').';
+    }
+    btn.disabled = false;
+  }
+  async function resetBestiary() {
+    await clearStored();
+    location.reload();
+  }
 
   function exportData() {
     const blob = new Blob([JSON.stringify(S.get(), null, 1)], { type: 'application/json' });

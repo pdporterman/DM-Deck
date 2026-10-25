@@ -17,7 +17,7 @@ export function showStatBlock(m, withAdd = true) {
 
 export function creatureCard(m, { onAdd, onOpen } = {}) {
   const icon = D.TYPE_ICON[(m.t || '').split('/')[0]] || '❖';
-  const card = el('article', { class: 'card creature', tabIndex: 0, 'aria-label': m.name + ', CR ' + m.crl },
+  const card = el('article', { class: 'card creature', 'data-type': (m.t || '').split('/')[0].toLowerCase(), tabIndex: 0, 'aria-label': m.name + ', CR ' + m.crl },
     el('span', { class: 'glyph', 'aria-hidden': 'true', text: icon }),
     el('div', { class: 'card-top' }, el('h3', { text: m.name }), el('span', { class: 'cr', title: xpForCr(m.crn) + ' XP', text: m.crn == null ? 'CR —' : 'CR ' + m.crl })),
     el('p', { class: 'card-sub', text: [sizeText(m), m.typeName].filter(Boolean).join(' ') }),

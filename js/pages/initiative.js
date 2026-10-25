@@ -22,18 +22,32 @@ export function mount(root) {
     const cr = e && e.creatures.find(x => x.id === c.cid);
     return cr ? { cr, list: e.creatures } : null;
   }
+  // Grouping: which monsters share one initiative (campaign setting).
+  const mode = () => camp.initMode || 'individual';
+  function groupKey(c) {
+    if (c.kind !== 'mon' || mode() === 'individual') return null;
+    if (mode() === 'all') return 'all';
+    return c.cid ? (creatureOf(c)?.cr.mkey || null) : (c.mkey || null);
+  }
+  function shareGroups() {
+    // a monster that has no initiative yet takes the one its group already has
+    const val = new Map();
+    for (const c of init.list) { const k = groupKey(c); if (k && c.init != null && !val.has(k)) val.set(k, c.init); }
+    for (const c of init.list) { const k = groupKey(c); if (k && c.init == null && val.has(k)) c.init = val.get(k); }
+  }
   // Keep the list in step with the campaign: every player present, no stale entries.
   function sync() {
     const pids = new Set(camp.players.map(p => p.id));
     init.list = init.list.filter(c => c.kind === 'pc' ? pids.has(c.pid) : (c.cid ? !!creatureOf(c) : true));
     for (const p of camp.players) if (!init.list.some(c => c.kind === 'pc' && c.pid === p.id)) init.list.push({ id: S.uid(), kind: 'pc', pid: p.id, init: null });
     if (init.curId && !init.list.some(c => c.id === init.curId)) init.curId = null;
+    shareGroups();
   }
   function parts(c) {
     // returns {name, holder|null, mon|null, sub}
     if (c.kind === 'pc') {
       const p = camp.players.find(x => x.id === c.pid);
-      return { name: p.name, sub: 'Level ' + p.level, holder: null, mon: null };
+      return { name: p.name, sub: ['Level ' + p.level, p.ac ? 'AC ' + p.ac : '', p.maxHp ? p.maxHp + ' HP' : ''].filter(Boolean).join(' · '), holder: null, mon: null };
     }
     if (c.cid) {
       const r = creatureOf(c);
@@ -69,16 +83,23 @@ export function mount(root) {
     }
   }
   function sortByInit() {
-    const withIdx = init.list.map((c, i) => ({ c, i }));
-    withIdx.sort((a, b) => ((b.c.init ?? -999) - (a.c.init ?? -999)) || a.i - b.i);
+    const first = new Map();
+    init.list.forEach((c, i) => { const k = groupKey(c); if (k && !first.has(k)) first.set(k, i); });
+    const pos = (c, i) => { const k = groupKey(c); return k ? first.get(k) : i; };
+    const withIdx = init.list.map((c, i) => ({ c, i, g: pos(c, i) }));
+    withIdx.sort((a, b) => ((b.c.init ?? -999) - (a.c.init ?? -999)) || a.g - b.g || a.i - b.i);
     init.list = withIdx.map(x => x.c);
     S.save(); draw();
   }
   function rollMonsters() {
+    const rolled = new Map();
     for (const c of init.list) {
       if (c.kind !== 'mon') continue;
+      const k = groupKey(c);
+      if (k && rolled.has(k)) { c.init = rolled.get(k); continue; }
       const m = parts(c).mon;
       c.init = 1 + Math.floor(Math.random() * 20) + (m ? initMod(m) : 0);
+      if (k) rolled.set(k, c.init);
     }
     sortByInit();
   }
@@ -156,7 +177,12 @@ export function mount(root) {
   function row(c, listEl) {
     const p = parts(c);
     const initIn = el('input', { type: 'number', class: 'init-in', value: c.init ?? '', placeholder: '–', inputMode: 'numeric', 'aria-label': 'Initiative for ' + p.name });
-    initIn.addEventListener('change', () => { c.init = initIn.value === '' ? null : parseInt(initIn.value, 10); S.save(); });
+    initIn.addEventListener('change', () => {
+      c.init = initIn.value === '' ? null : parseInt(initIn.value, 10);
+      const k = groupKey(c);
+      if (k) { init.list.forEach(x => { if (groupKey(x) === k) x.init = c.init; }); draw(); }
+      S.save();
+    });
     const r = el('article', { class: 'init-row' + (c.id === init.curId ? ' current' : '') + (c.kind === 'pc' ? ' pc' : ' mon') + (isDown(c) ? ' down' : ''), 'data-id': c.id });
     const handle = el('button', { class: 'handle', 'aria-label': 'Drag to reorder ' + p.name, title: 'Drag to reorder', text: '⠿' });
     handle.addEventListener('pointerdown', e => dragStart(e, listEl, c));
@@ -192,6 +218,7 @@ export function mount(root) {
       el('button', { class: 'btn small', text: '＋ Encounter', on: { click: addEncounterPopup } }),
       el('button', { class: 'btn small', text: '＋ Monster', on: { click: addMonsterPopup } }),
       el('button', { class: 'btn small danger', text: 'New combat', title: 'Reset the round, clear all initiative values and remove monsters', on: { click: () => { init.list = init.list.filter(c => c.kind === 'pc'); init.list.forEach(c => { c.init = null; }); init.round = 1; init.curId = null; S.save(); draw(); } } })));
+    if (mode() !== 'individual') wrap.append(el('p', { class: 'muted small', text: mode() === 'all' ? 'All monsters share one initiative.' : 'Matching creatures share one initiative (change this in the campaign’s Edit popup).' }));
     if (!camp.players.length && !init.list.length) wrap.append(el('div', { class: 'empty' }, el('p', { text: 'No players or monsters yet.' }), el('button', { class: 'btn', text: 'Add players', on: { click: () => nav.go('players') } })));
     const listEl = el('div', { class: 'init-list' });
     init.list.forEach(c => listEl.append(row(c, listEl)));
