@@ -11,7 +11,7 @@ index.html          app shell
 manifest.json       home-screen install info
 sw.js               service worker (offline cache)
 css/style.css       look and feel (day + night mode)
-js/                 app code (main.js is the entry point; pages/ holds each screen)
+js/                 app code (updater.js is the in-app bestiary updater) (main.js is the entry point; pages/ holds each screen)
 data/bestiary.json  creatures built from 5etools (3,700+, newest book wins for duplicates)
 icons/              app icons
 tools/              build_bestiary.py - rebuilds data/bestiary.json from 5etools
@@ -24,6 +24,11 @@ tools/              build_bestiary.py - rebuilds data/bestiary.json from 5etools
 3. Open the site on your phone and use "Add to Home Screen".
 
 ## Update the creature data
+
+**In the app:** Settings → Bestiary → *Update monsters from 5etools*. It downloads the latest data and keeps it on that
+device (needs a connection once). *Use built-in list* goes back to the file shipped with the app.
+
+**For everyone who uses your site (optional):**
 
 ```
 python3 tools/build_bestiary.py
@@ -40,3 +45,9 @@ older one), and rewrites `data/bestiary.json`. Then change `VERSION` at the top 
   and compare with the Easy / Medium / Hard / Deadly thresholds.
 
 Creatures with no CR (some summons and NPCs) count as 0 XP.
+
+## Campaign setting: monster initiative
+
+Each campaign (new or Edit popup) has *Monster initiative*: each creature rolls on its own (default), the same creature
+shares one roll (all spiders together, giant spiders separate), or all monsters share one roll. Rolling, typing a value
+and sorting all follow it.
