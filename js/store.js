@@ -46,8 +46,14 @@ export function campaign(id) {
   return state.campaigns.find(c => c.id === id) || null;
 }
 
-export function newCampaign(name) {
-  const c = { id: uid(), name, players: [], encounters: [], selEnc: null, init: { round: 1, curId: null, list: [] } };
+export const INIT_MODES = [
+  ['individual', 'Each creature rolls on its own (default)'],
+  ['type', 'Same creature shares one initiative (all spiders together, giant spiders separate)'],
+  ['all', 'All monsters share one initiative'],
+];
+
+export function newCampaign(name, initMode = 'individual') {
+  const c = { id: uid(), name, initMode, players: [], encounters: [], selEnc: null, init: { round: 1, curId: null, list: [] } };
   state.campaigns.push(c);
   state.activeCampaign = c.id;
   save();

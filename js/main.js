@@ -29,20 +29,26 @@ $menuBtn.addEventListener('click', () => { buildMenu(); openDrawer(!$drawer.clas
 $scrim.addEventListener('click', () => openDrawer(false));
 document.addEventListener('keydown', e => { if (e.key === 'Escape') openDrawer(false); });
 
+function modeField(value) {
+  const sel = el('select', { 'aria-label': 'Monster initiative' }, S.INIT_MODES.map(([v, l]) => el('option', { value: v, text: l, selected: v === value })));
+  return { sel, field: el('label', null, 'Monster initiative', sel, el('span', { class: 'muted small', text: 'How monsters are grouped when rolling initiative in this campaign.' })) };
+}
 function newCampaign() {
+  const mode = modeField('individual');
   promptName({
-    title: 'New campaign', label: 'Campaign name', okLabel: 'Create',
-    onSubmit: name => { const c = S.newCampaign(name); S.get().menuOpen = c.id; nav.go('players', c.id); },
+    title: 'New campaign', label: 'Campaign name', okLabel: 'Create', extra: mode.field,
+    onSubmit: name => { const c = S.newCampaign(name, mode.sel.value); S.get().menuOpen = c.id; nav.go('players', c.id); },
   });
 }
 function editCampaign(c) {
+  const mode = modeField(c.initMode || 'individual');
   promptName({
-    title: 'Edit campaign', label: 'Campaign name', value: c.name,
+    title: 'Edit campaign', label: 'Campaign name', value: c.name, extra: mode.field,
     extraActions: [{ label: 'Delete', kind: 'danger', keepOpen: true, onClick: async close => {
       close();
       if (await confirmBox('Delete “' + c.name + '” with its players, encounters and initiative?')) { S.deleteCampaign(c.id); nav.go('bestiary'); }
     } }],
-    onSubmit: name => { c.name = name; S.save(); render(); },
+    onSubmit: name => { c.name = name; c.initMode = mode.sel.value; S.save(); render(); },
   });
 }
 nav.hooks.newCampaign = newCampaign;
