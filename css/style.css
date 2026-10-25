@@ -229,3 +229,8 @@ input[type=number] { width: 5rem; }
 .row-card.player .player-stats input { width: 4.6rem; }
 .row-card.player { grid-template-columns: 1fr auto auto auto; }
 @media (max-width: 720px) { .row-card.player { grid-template-columns: 1fr auto; } .row-card.player .player-stats { grid-column: 1 / -1; } }
+
+/* Phones: inputs below 16px make iOS zoom the page on focus; a double tap on buttons must not zoom either. */
+input, select, textarea { font-size: max(16px, 1rem) !important; }
+* { touch-action: manipulation; }
+.handle { touch-action: none; }
