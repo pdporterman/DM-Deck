@@ -234,3 +234,18 @@ input[type=number] { width: 5rem; }
 input, select, textarea { font-size: max(16px, 1rem) !important; }
 * { touch-action: manipulation; }
 .handle { touch-action: none; }
+
+/* Rules & Conditions */
+.rules .tabs { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: .5rem; }
+.rules .tabs.quick { margin: .1rem 0 .6rem; }
+.rule-list { display: flex; flex-direction: column; gap: .45rem; padding-bottom: 4rem; }
+.rule-group { margin-top: .8rem; }
+.rule { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); }
+.rule > summary { display: flex; align-items: baseline; justify-content: space-between; gap: .6rem; padding: .6rem .8rem; cursor: pointer; list-style: none; }
+.rule > summary::-webkit-details-marker { display: none; }
+.rule > summary::before { content: '▸'; color: var(--muted); margin-right: .1rem; }
+.rule[open] > summary::before { content: '▾'; }
+.rule-name { font-family: var(--serif); font-weight: 700; flex: 1; }
+.rule-body { padding: 0 .9rem .7rem; border-top: 1px solid var(--line); }
+.rule-body p, .rule-body ul { margin: .5rem 0 0; }
+.rule-body ul { padding-left: 1.2rem; }
