@@ -46,7 +46,7 @@ export function tags(s) {
 export const plain = s => tags(String(s)).replace(/<[^>]+>/g, '');
 
 // ---- entries ----
-function entryNodes(e, depth = 0) { return entryNodes0(e, depth).filter(Boolean); }
+export function entryNodes(e, depth = 0) { return entryNodes0(e, depth).filter(Boolean); }
 function entryNodes0(e, depth = 0) {
   if (e == null) return [];
   if (typeof e === 'string') return [el('p', { html: tags(e) })];
