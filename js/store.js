@@ -4,6 +4,7 @@ const KEY = 'dmapp.v1';
 const defaults = () => ({
   settings: { night: false, fontSize: 16, rules: '2024', groupHeadings: true },
   campaigns: [],
+  custom: [],
   activeCampaign: null,
   last: { view: 'bestiary' },
   bestiary: { sort: 'name', dir: 1, types: null, crMin: '0', crMax: '30', q: '' },

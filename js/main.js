@@ -8,9 +8,12 @@ import * as initiative from './pages/initiative.js';
 import * as players from './pages/players.js';
 import * as settings from './pages/settings.js';
 import * as rules from './pages/rules.js';
+import * as custom from './pages/custom.js';
+import * as D from './data.js';
 
-const PAGES = { bestiary, encounters, initiative, players, settings, rules };
-const TITLES = { bestiary: 'Bestiary', encounters: 'Encounters', initiative: 'Initiative', players: 'Players', settings: 'Settings', rules: 'Rules & Conditions' };
+D.setCustom(S.get().custom);
+const PAGES = { bestiary, encounters, initiative, players, settings, rules, custom };
+const TITLES = { bestiary: 'Bestiary', encounters: 'Encounters', initiative: 'Initiative', players: 'Players', settings: 'Settings', rules: 'Rules & Conditions', custom: 'Custom creatures' };
 const CAMP_PAGES = ['players', 'initiative', 'encounters'];
 
 const $page = document.getElementById('page');
@@ -80,7 +83,7 @@ function buildMenu() {
 
   scroll.append(el('div', { class: 'menu-group ref' },
     el('div', { class: 'menu-row' }, el('button', { class: 'menu-item head menu-title-btn', 'aria-expanded': String(open('ref')), on: { click: () => toggle('ref') } }, el('span', { class: 'chev', text: open('ref') ? '▾' : '▸' }), 'Reference')),
-    open('ref') ? el('div', { class: 'submenu' }, item('Bestiary', 'bestiary', undefined, view === 'bestiary'), item('Rules & Conditions', 'rules', undefined, view === 'rules')) : null));
+    open('ref') ? el('div', { class: 'submenu' }, item('Bestiary', 'bestiary', undefined, view === 'bestiary'), item('Custom creatures', 'custom', undefined, view === 'custom'), item('Rules & Conditions', 'rules', undefined, view === 'rules')) : null));
   $drawer.append(scroll, el('div', { class: 'drawer-foot' }, el('button', { class: 'gear' + (view === 'settings' ? ' active' : ''), 'aria-label': 'Settings', title: 'Settings', on: { click: () => { nav.go('settings'); openDrawer(false); } } }, '⚙ ', el('span', { text: 'Settings' }))));
 }
 
