@@ -249,3 +249,13 @@ input, select, textarea { font-size: max(16px, 1rem) !important; }
 .rule-body { padding: 0 .9rem .7rem; border-top: 1px solid var(--line); }
 .rule-body p, .rule-body ul { margin: .5rem 0 0; }
 .rule-body ul { padding-left: 1.2rem; }
+
+/* Set every player's level at once; custom creature form */
+.set-all { display: flex; align-items: flex-end; gap: .6rem; flex-wrap: wrap; margin: .2rem 0 .8rem; }
+.set-all label { display: flex; flex-direction: column; font-size: .82rem; color: var(--muted); gap: .2rem; }
+.form textarea { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: .45rem .6rem; font: inherit; color: inherit; width: 100%; resize: vertical; }
+.form .abil-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: .35rem; }
+.form .abil-grid label { align-items: center; text-align: center; font-weight: 700; }
+.form .abil-grid input { width: 100%; text-align: center; padding-inline: .2rem; }
+.form .row-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: .5rem; }
+@media (max-width: 420px) { .form .abil-grid { grid-template-columns: repeat(3, 1fr); } .form .row-4 { grid-template-columns: repeat(2, 1fr); } }
