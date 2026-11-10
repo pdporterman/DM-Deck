@@ -1,10 +1,10 @@
 // Offline support. Bump VERSION when you rebuild data/bestiary.json or change files so installed copies refresh.
-const VERSION = 'dm-toolkit-v4';
+const VERSION = 'dm-toolkit-v5';
 const SHELL = [
   './', 'index.html', 'manifest.json', 'css/style.css', 'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png',
   'js/main.js', 'js/store.js', 'js/nav.js', 'js/ui.js', 'js/theme.js', 'js/calc.js', 'js/data.js', 'js/fmt.js',
   'js/creatures.js', 'js/updater.js', 'js/hp.js', 'js/addpopup.js',
-  'js/pages/bestiary.js', 'js/pages/encounters.js', 'js/pages/initiative.js', 'js/pages/players.js', 'js/pages/settings.js', 'js/pages/rules.js',
+  'js/pages/bestiary.js', 'js/pages/encounters.js', 'js/pages/initiative.js', 'js/pages/players.js', 'js/pages/settings.js', 'js/pages/rules.js', 'js/pages/custom.js',
 ];
 const DATA = ['data/bestiary.json', 'data/rules.json'];
 
