@@ -1,5 +1,5 @@
 import * as S from '../store.js';
-import { el, clear, modal, confirmBox, clickPrimary } from '../ui.js';
+import { el, clear, modal, confirmBox, clickPrimary, toast } from '../ui.js';
 import * as nav from '../nav.js';
 
 const num = v => { const n = parseInt(v, 10); return Number.isNaN(n) || n < 1 ? undefined : n; };
@@ -41,6 +41,13 @@ export function mount(root) {
       return;
     }
     wrap.append(el('p', { class: 'muted', text: camp.players.length + ' character' + (camp.players.length === 1 ? '' : 's') + ' · average level ' + (Math.round(avg * 10) / 10) }));
+    const everyone = levelSelect(Math.max(1, Math.min(20, Math.round(avg))), () => {});
+    wrap.append(el('div', { class: 'set-all' }, el('label', null, 'Set every character to', everyone),
+      el('button', { class: 'btn', text: 'Apply to all', on: { click: () => {
+        const lv = +everyone.value;
+        camp.players.forEach(p => { p.level = lv; });
+        S.save(); draw(); toast('All ' + camp.players.length + ' character' + (camp.players.length === 1 ? '' : 's') + ' set to level ' + lv);
+      } } })));
     wrap.append(el('div', { class: 'rows' }, camp.players.map(p => {
       const name = el('input', { type: 'text', value: p.name, maxLength: 40, 'aria-label': 'Character name' });
       name.addEventListener('change', () => { p.name = name.value.trim() || p.name; name.value = p.name; S.save(); });
